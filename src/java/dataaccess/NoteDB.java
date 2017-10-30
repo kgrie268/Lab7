@@ -37,7 +37,7 @@ public class NoteDB {
             int rows = ps.executeUpdate();
             return rows;
         } catch (SQLException ex) {
-            Logger.getLogger(UserDB.class.getName()).log(Level.SEVERE, "Cannot insert " + note.toString(), ex);
+            Logger.getLogger(NoteDB.class.getName()).log(Level.SEVERE, "Cannot insert " + note.toString(), ex);
             throw new NotesDBException("Error inserting user");
         } finally {
             pool.freeConnection(connection);
@@ -70,7 +70,7 @@ public class NoteDB {
         }
     }
 
-    public List<User> getAll() throws NotesDBException {
+    public List<Note> getAll() throws NotesDBException {
         ConnectionPool pool = ConnectionPool.getInstance();
         Connection connection = pool.getConnection();
 
@@ -78,17 +78,17 @@ public class NoteDB {
         ResultSet rs = null;
 
         try {
-            ps = connection.prepareStatement("SELECT * FROM user;");
+            ps = connection.prepareStatement("SELECT * FROM notes;");
             rs = ps.executeQuery();
-            List<User> users = new ArrayList<>();
+            List<Note> notes = new ArrayList<>();
             while (rs.next()) {
-                users.add(new User(rs.getString("username"), rs.getString("password"), rs.getString("email"), rs.getInt("active"), rs.getString("firstname"), rs.getString("lastname")));
+                notes.add(new Note(rs.getInt("noteID"), rs.getDate("dateCreated"), rs.getString("contents")));
             }
             pool.freeConnection(connection);
-            return users;
+            return notes;
         } catch (SQLException ex) {
-            Logger.getLogger(UserDB.class.getName()).log(Level.SEVERE, "Cannot read users", ex);
-            throw new NotesDBException("Error getting Users");
+            Logger.getLogger(NoteDB.class.getName()).log(Level.SEVERE, "Cannot read notes", ex);
+            throw new NotesDBException("Error getting Notes");
         } finally {
             try {
                 rs.close();
@@ -102,11 +102,11 @@ public class NoteDB {
     /**
      * Get a single user by their username.
      *
-     * @param username The unique username.
+     * @param username The unique noteID.
      * @return A User object if found, null otherwise.
      * @throws NotesDBException
      */
-    public User getUser(String username) throws NotesDBException {
+    public Note getNote(int noteID) throws NotesDBException {
         ConnectionPool pool = ConnectionPool.getInstance();
         Connection connection = pool.getConnection();
         String selectSQL = "SELECT * FROM User WHERE username = ?";
@@ -115,17 +115,17 @@ public class NoteDB {
 
         try {
             ps = connection.prepareStatement(selectSQL);
-            ps.setString(1, username);
+            ps.setInt(1, noteID);
             rs = ps.executeQuery();
 
-            User user = null;
+            Note note= null;
             while (rs.next()) {
-                user = new User(rs.getString("username"), rs.getString("password"), rs.getString("email"), rs.getInt("active"), rs.getString("firstname"), rs.getString("lastname"));
+                note = new Note(rs.getInt("noteID"), rs.getDate("dateCreated"), rs.getString("contents"));
             }
             pool.freeConnection(connection);
-            return user;
+            return note;
         } catch (SQLException ex) {
-            Logger.getLogger(UserDB.class.getName()).log(Level.SEVERE, "Cannot read users", ex);
+            Logger.getLogger(NoteDB.class.getName()).log(Level.SEVERE, "Cannot read users", ex);
             throw new NotesDBException("Error getting Users");
         } finally {
             try {
@@ -137,7 +137,7 @@ public class NoteDB {
         }
     }
 
-    public int delete(User user) throws NotesDBException {
+    public int delete(Note note) throws NotesDBException {
         ConnectionPool pool = ConnectionPool.getInstance();
         Connection connection = pool.getConnection();
         String preparedQuery = "DELETE FROM User WHERE username = ?";
@@ -145,11 +145,11 @@ public class NoteDB {
 
         try {
             ps = connection.prepareStatement(preparedQuery);
-            ps.setString(1, user.getUsername());
+            ps.setInt(1, note.getNoteID());
             int rows = ps.executeUpdate();
             return rows;
         } catch (SQLException ex) {
-            Logger.getLogger(UserDB.class.getName()).log(Level.SEVERE, "Cannot delete " + user.toString(), ex);
+            Logger.getLogger(NoteDB.class.getName()).log(Level.SEVERE, "Cannot delete " + note.toString(), ex);
             throw new NotesDBException("Error deleting User");
         } finally {
             pool.freeConnection(connection);
@@ -157,4 +157,4 @@ public class NoteDB {
     }
 }
 
-}
+

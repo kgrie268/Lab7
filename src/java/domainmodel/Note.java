@@ -21,9 +21,23 @@ public class Note implements Serializable{
     
 
     public Note() {
-
+        
     }
-
+    public Note(Date dateCreated, String contents) {
+        this.dateCreated = dateCreated;
+        this.contents = contents;
+    }
+    
+    public Note(int noteId, String contents) {
+        this.noteID = noteId;
+        this.contents = contents;
+    }
+    
+    public Note(int noteId, Date dateCreated, String contents) {
+        this.noteID = noteId;
+        this.dateCreated = dateCreated;
+        this.contents = contents;
+    }
     public int getNoteID() {
         return noteID;
     }
@@ -31,6 +45,7 @@ public class Note implements Serializable{
     public void setNoteID(int noteID) {
         this.noteID = noteID;
     }
+    
 
     public Date getDateCreated() {
         return dateCreated;
